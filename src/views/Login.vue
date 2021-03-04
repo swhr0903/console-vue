@@ -149,7 +149,6 @@ export default {
               expiresIn: data.expiresIn,
             });
             this.$router.push("/");
-            //console.log("accessToken:" + accessToken);
           });
       }
     },

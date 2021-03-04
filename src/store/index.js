@@ -5,18 +5,17 @@ import cookie from "vue-cookies";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  // state: {
-  //   access_token: "",
-  //   refresh_token: "",
-  //   expiresIn: "",
-  //   //userInfo: JSON.parse(sessionStorage.getItem("userInfo")),
-  // },
+  state: {
+    access_token: "",
+    refresh_token: "",
+    expiresIn: ""
+  },
   mutations: {
     setToken(state, data) {
       state.access_token = data.accessToken;
       state.refresh_token = data.refreshToken;
       cookie.set("access_token", data.accessToken, data.expiresIn);
-      cookie.set("refresh_token", data.refreshToken, data.expiresIn);
+      cookie.set("refresh_token", data.refreshToken);
     },
     removeToken(state) {
       state.access_token = "";
@@ -27,7 +26,14 @@ export default new Vuex.Store({
   },
   getters: {
     getAccessToken: (state) => {
-      return cookie.get("access_token");
+      let accessToken =
+        state.access_token &&
+        state.access_token != null &&
+        state.access_token != ""
+          ? state.access_token
+          : cookie.get("access_token");
+      console.log("accessToken---------"+accessToken)
+      return accessToken;
     },
   },
   actions: {},
