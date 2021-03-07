@@ -8,14 +8,14 @@ export default new Vuex.Store({
   state: {
     access_token: "",
     refresh_token: "",
-    expiresIn: ""
+    expiresIn: "",
   },
   mutations: {
     setToken(state, data) {
       state.access_token = data.accessToken;
       state.refresh_token = data.refreshToken;
       cookie.set("access_token", data.accessToken, data.expiresIn);
-      cookie.set("refresh_token", data.refreshToken);
+      cookie.set("refresh_token", data.refreshToken, data.expiresIn * 10);
     },
     removeToken(state) {
       state.access_token = "";
@@ -32,7 +32,7 @@ export default new Vuex.Store({
         state.access_token != ""
           ? state.access_token
           : cookie.get("access_token");
-      console.log("accessToken---------"+accessToken)
+      //console.log("accessToken---------"+accessToken)
       return accessToken;
     },
   },

@@ -122,20 +122,16 @@ export default {
     getToken: async function() {
       let params;
       let publicKey = await this.getPublicKey(this.ruleForm.username);
-      if (publicKey != null) {
+      if (Object.keys(publicKey).length > 0) {
         await this.login(publicKey);
         params = await this.oauthAuth();
       }
-      if (params != null) {
-        let client_id = params.client_id;
-        let client_secret = params.client_secret;
+      if (Object.keys(params).length > 0) {
         let authorization_code = params.code;
         await this.$axios
           .post(
-            "http://www.frank.com/oauth/token?grant_type=authorization_code&client_id=" +
-              client_id +
-              "&client_secret=" +
-              client_secret +
+            "http://www.frank.com/oauth/token?grant_type=authorization_code&client_id=web" +
+              "&client_secret=$2a$10$SOL5PyvzJzzRWfam8ykp3OmdRkdFzPCgQNq02arvDYPHcWYkwS/ZK" +
               "&code=" +
               authorization_code +
               "&redirect_uri=http://www.frank.com/oauth/callback",
@@ -148,6 +144,7 @@ export default {
               refreshToken: data.refreshToken,
               expiresIn: data.expiresIn,
             });
+            //console.log("refreshToken---------"+data.refreshToken)
             this.$router.push("/");
           });
       }

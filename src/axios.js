@@ -9,9 +9,21 @@ axios.defaults.baseURL = "http://www.frank.com";
 axios.interceptors.request.use(
   (config) => {
     config.headers.version = "v1";
-    if (localStorage.JWT_TOKEN) {
-      // 判断是否存在token，如果存在的话，则每个http header都加上token
-      config.headers.Authorization = "Bearer ${localStorage.JWT_TOKEN}";
+    let url = config.url;
+    if (!url.match(new RegExp("|login|oauth|encrypt"))) {
+      var token = store.getters.getAccessToken;
+      if (token) {
+        // 判断是否存在token，如果存在的话，则每个http header都加上token
+        config.headers.Authorization = token;
+      } else {
+        let data = this.getToken();
+        this.$store.commit("setToken", {
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          expiresIn: data.expiresIn,
+        });
+        config.headers.Authorization = data.accessToken;
+      }
     }
     return config;
   },
@@ -23,6 +35,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => {
     let status = response.status;
+    let code = response.data.code;
     if (status === 200) {
       return response;
     } else {
@@ -45,3 +58,29 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+async function getToken() {
+  let refresh_code = cookie.get("refresh_code");
+  if (Object.keys(refresh_code).length == 0) {
+    this.$router.push("/login");
+  } else {
+    await this.$axios
+      .post(
+        "http://www.frank.com/oauth/token?grant_type=refresh_token&client_id=web" +
+          "&client_secret=$2a$10$SOL5PyvzJzzRWfam8ykp3OmdRkdFzPCgQNq02arvDYPHcWYkwS/ZK" +
+          "&refresh_token=" +
+          refresh_token,
+        {}
+      )
+      .then((res) => {
+        let data = res.data.data;
+        this.$store.commit("setToken", {
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          expiresIn: data.expiresIn,
+        });
+        //console.log("refreshToken---------"+data.refreshToken)
+        this.$router.push("/");
+      });
+  }
+}
