@@ -144,7 +144,6 @@ export default {
               refreshToken: data.refreshToken,
               expiresIn: data.expiresIn,
             });
-            //console.log("refreshToken---------"+data.refreshToken)
             this.$router.push("/");
           });
       }

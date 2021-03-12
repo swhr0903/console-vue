@@ -16,13 +16,6 @@ axios.interceptors.request.use(
         // 判断是否存在token，如果存在的话，则每个http header都加上token
         config.headers.Authorization = token;
       } else {
-        let data = this.getToken();
-        this.$store.commit("setToken", {
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          expiresIn: data.expiresIn,
-        });
-        config.headers.Authorization = data.accessToken;
       }
     }
     return config;
@@ -37,6 +30,27 @@ axios.interceptors.response.use(
     let status = response.status;
     let code = response.data.code;
     if (status === 200) {
+      if (code == "A0230") {
+        const refresh_token = store.getters.getRefreshToken;
+        return axios
+          .post(
+            "http://www.frank.com/oauth/token?grant_type=refresh_token&client_id=web" +
+              "&client_secret=$2a$10$SOL5PyvzJzzRWfam8ykp3OmdRkdFzPCgQNq02arvDYPHcWYkwS/ZK" +
+              "&refresh_token=" +
+              refresh_token,
+            {}
+          )
+          .then(({ res }) => {
+            let data = res.data.data;
+            this.$store.commit("setToken", {
+              accessToken: data.accessToken,
+              refreshToken: data.refreshToken,
+              expiresIn: data.expiresIn,
+            });
+            originalRequest.headers.Authorization = data.accessToken;
+            return axios(originalRequest);
+          });
+      }
       return response;
     } else {
       Element.Message.error(res.msg, { duration: 3 * 1000 });
@@ -79,7 +93,6 @@ async function getToken() {
           refreshToken: data.refreshToken,
           expiresIn: data.expiresIn,
         });
-        //console.log("refreshToken---------"+data.refreshToken)
         this.$router.push("/");
       });
   }

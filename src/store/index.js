@@ -35,6 +35,16 @@ export default new Vuex.Store({
       //console.log("accessToken---------"+accessToken)
       return accessToken;
     },
+    getRefreshToken: (state) => {
+      let refreshToken =
+        state.refresh_token &&
+        state.refresh_token != null &&
+        state.refresh_token != ""
+          ? state.refresh_token
+          : $cookies.get("refresh_token");
+      //console.log("refresh_token---------"+refresh_token)
+      return refreshToken;
+    },
   },
   actions: {},
   modules: {},
